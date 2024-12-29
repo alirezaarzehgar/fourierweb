@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Joseph Plot</title>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+	f(x): <input type="text" id="fx" placeholder="f(x)" value="x*x"><br>
+	N: <input type="number" id="sampels" placeholder="Number of samples: " value="10"><br>
+	integral step: <input type="text" id="intstep" placeholder="Integeral step: " value="0.01"><br>
+	spot step: <input type="text" id="spotstep" placeholder="Spot step: " value="0.1"><br>
+	<button onclick="createChart()">Plot!</button>
+
+	<script>
+		function createChart() {
+			const xValues = [];
+			const yValues = [];
+
+			const fx = document.getElementById("fx").value;
+			const numSampels = document.getElementById("sampels").value;
+			const ss = parseFloat(document.getElementById("spotstep").value);
+			const intstep = parseFloat(document.getElementById("spotstep").value);
+
+			const f = function (x) {
+				return eval(fx)
+			}
+
+			for (let x = -10; x <= 10; x += ss) {
+				xValues.push(x)
+				yValues.push(generate_function(
+					x,
+					f,
+					numSampels,
+					intstep
+				))
+			}
+
+			var oldcanv = document.getElementById('ctx');
+			if (oldcanv) {
+				oldcanv.remove()
+			}
+
+			var ctx = document.createElement('canvas');
+			ctx.id = 'ctx';
+			document.body.appendChild(ctx);
+
+			new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: xValues,
+					datasets: [{
+						label: 'f(x)',
+						data: yValues,
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 1,
+						fill: true,
+						pointRadius: 0,
+					}]
+				},
+				options: {
+					scales: {
+						x: { display: false },
+						y: { display: false }
+					}
+				}
+			})
+		}
+
+		function generate_function(x, f, N, intstep) {
+			let y = 0;
+			for (let n = 0; n <= N; n++) {
+				let L = Math.PI
+				let An = 0, Bn = 0
+
+				if (n == 0)
+					L *= 2;
+
+				for (let x = -Math.PI; x <= Math.PI; x += intstep) {
+					An += (f(x) * Math.cos(n * Math.PI * x / L)) * intstep;
+				}
+				An /= L;
+
+				for (let x = -Math.PI; x <= Math.PI; x += intstep) {
+					Bn += (f(x) * Math.sin(n * Math.PI * x / L)) * intstep;
+				}
+				Bn /= L;
+
+				y += An * Math.cos(n * Math.PI * x / L) + Bn * Math.sin(n * Math.PI * x / L)
+			}
+			return y
+		}
+	</script>
+
+</body>
+
+</html>
